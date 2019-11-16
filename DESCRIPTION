@@ -6,6 +6,6 @@ Author: Olivier Granacher
 Maintainer: Olivier Granacher <olivier.granacher@gmail.com>
 Description: Functions to help building and assessing Stan models
 License: 
-Imoorts: tidyverse
+Imports: tidyverse
 Encoding: UTF-8
 LazyData: true
