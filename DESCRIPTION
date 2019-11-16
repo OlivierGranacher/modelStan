@@ -1,0 +1,11 @@
+Package: stanModel
+Type: Package
+Title: Helper Functions for Stan Models
+Version: 0.1.0
+Author: Olivier Granacher
+Maintainer: Olivier Granacher <olivier.granacher@gmail.com>
+Description: Functions to help building and assessing Stan models
+License: 
+Imoorts: tidyverse
+Encoding: UTF-8
+LazyData: true
