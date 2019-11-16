@@ -1,13 +1,16 @@
 #' Adds predictions and quantiles to data from Stan model
 #'
-#' 
-#' 
+#'
+#'
 #' @param model  a Stan fit obtained with rstan::stan()
 #' @param data dataframe with data used by the Stan model
-#' @param sim  character with simulated data from Stan model Generated Quantities
+#' @param sim  character with simulated data from Stan model in Generated Quantities
 #' @param q1   low value for quantiles
 #' @param q2   high value for quantiles
-#' 
+#'
+#' @return adds 3 columns to data : pred, q10 and q90
+#'
+#' @export
 
 addStanPred <- function(model, data, sim, q1 = .1, q2 = .9 ) {
   post <- rstan::extract(model)
