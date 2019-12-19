@@ -3,7 +3,7 @@ Type: Package
 Title: Helper Functions for Stan Models
 Description: Functions to help build and test Stan Models. Based on Mc Elreath 
     2019 stats course
-Version: 0.1.0
+Version: 0.2.0
 Author: Olivier Granacher
 Maintainer: Olivier Granacher <olivier.granacher@gmail.com>
 Description: Functions to help building and assessing Stan models
