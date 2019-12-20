@@ -2,7 +2,7 @@ Package: modelStan
 Type: Package
 Title: Helper Functions for Stan Models
 Description: Functions to help build and test Stan Models. 
-Version: 0.3.0
+Version: 0.3.1
 Author: Olivier Granacher
 Maintainer: Olivier Granacher <olivier.granacher@gmail.com>
 License: file LICENSE

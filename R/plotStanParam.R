@@ -1,6 +1,6 @@
-#' returns ggplot with pointrange for each parameter
+#' Returns ggplot with pointrange for parameters
 #'
-#' returns ggplot with pointrange for each parameter of Stan model
+#' Returns ggplot with pointrange for each parameter of Stan model
 #'
 #' @param model  a Stan fit obtained with rstan::stan()
 #' @param param.name name (char) of parameter to get
@@ -17,9 +17,9 @@ plotStanParam <- function(model, param.name) {
   param.q90  <-  purrr::map_dbl(param.post, quantile, probs = .9)
   result <- data.frame(cbind(param.mean, param.q10, param.q90))
   result <- cbind(names(param.post), result)
-  p <- geom_pointrange(aes(x = result[, 1],
-                        y  = result[, 2],
-                        ymin= result[, 3],
+  p <- ggplot(result) + geom_pointrange(aes(x = result[, 1],
+                        y    = result[, 2],
+                        ymin = result[, 3],
                         ymax = result[, 4]),
                     shape = 21,
                     color = "grey50") +
