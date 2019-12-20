@@ -16,7 +16,8 @@ plotStanParam <- function(model, param.name) {
   param.q10  <-  purrr::map_dbl(param.post, quantile, probs = .1)
   param.q90  <-  purrr::map_dbl(param.post, quantile, probs = .9)
   result <- data.frame(cbind(param.mean, param.q10, param.q90))
-  result <- cbind(names(param.post), result)
+  result <- cbind(names = names(param.post), result)
+  result$names <- forcats::fct_inorder(result$names)
   p <- ggplot(result) + geom_pointrange(aes(x = result[, 1],
                         y    = result[, 2],
                         ymin = result[, 3],

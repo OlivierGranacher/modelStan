@@ -2,15 +2,16 @@ Package: modelStan
 Type: Package
 Title: Helper Functions for Stan Models
 Description: Functions to help build and test Stan Models. 
-Version: 0.3.1
+Version: 0.3.2
 Author: Olivier Granacher
 Maintainer: Olivier Granacher <olivier.granacher@gmail.com>
-License: file LICENSE
+License: file LICENSE.R
 Encoding: UTF-8
 LazyData: true
 Imports: 
     rstan,
     ggplot2,
     purrr,
-    stats
+    stats,
+    forcats
 RoxygenNote: 7.0.2
