@@ -26,7 +26,7 @@ plotStanParam <- function(model, param.name) {
                     color = "grey50") +
     geom_hline(yintercept = 0, linetype = 2, color = "red") +
     labs(x = "", y = "") +
-    ggtitle(glue::glue("{model} : {param.name}")) +
+    ggtitle(glue::glue("{param.name}")) +
     coord_flip() +
     theme_minimal()
   return(p)
