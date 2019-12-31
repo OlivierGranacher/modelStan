@@ -18,8 +18,8 @@ addStanPred(model, data, sim, q1 = 0.1, q2 = 0.9)
 \item{q2}{high value for quantiles}
 }
 \value{
-adds 3 columns to data : pred, q10 and q90
+adds 4 columns to data : pred mean, pred.median, predq10 and q90
 }
 \description{
-Adds predictions and quantiles to data from Stan model
+Adds columns to dataframe containing model data
 }
