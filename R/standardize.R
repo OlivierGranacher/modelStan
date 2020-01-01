@@ -3,7 +3,7 @@
 #' returns numeric vector with standarzized values
 #'
 #' @param x numeric vector
-#' @param log if True log os x is standardized
+#' @param log if True log of x is standardized
 #'
 #' @return numeric with standardized values s
 #'

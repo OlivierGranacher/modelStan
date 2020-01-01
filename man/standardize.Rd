@@ -9,7 +9,7 @@ standardize(x, log = F)
 \arguments{
 \item{x}{numeric vector}
 
-\item{log}{if True log os x is standardized}
+\item{log}{if True log of x is standardized}
 }
 \value{
 numeric with standardized values s
