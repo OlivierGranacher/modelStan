@@ -3,3 +3,4 @@
 export(addStanPred)
 export(getStanParam)
 export(plotStanParam)
+export(standardize)
