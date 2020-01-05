@@ -3,5 +3,6 @@
 export(addStanPred)
 export(getStanParam)
 export(plotStanParam)
+export(simPotData)
 export(standardize)
 export(standardizeDT)

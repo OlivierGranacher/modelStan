@@ -15,7 +15,8 @@ Imports:
     stats,
     forcats,
     glue,
-    data.table
+    data.table,
+    stringr
 RoxygenNote: 7.0.2
 Suggests: 
     testthat
