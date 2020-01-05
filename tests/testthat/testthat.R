@@ -3,7 +3,7 @@ library(modelStan)
 
 
 # Test of function standardise
-  context("test of standardize")
+  context("Test of standardize")
   x1 <- c(1, 1)
   x2 <- c(-1, 1)
   x3 <- c(1, 2, NA)
@@ -13,7 +13,7 @@ library(modelStan)
   expect_equal(standardize(x3), (x3 - mean(x3, na.rm = T))/sd(x3, na.rm = T))
 
 # Test of standardizeDT
-  context("test of standardizeDT")
+  context("Test of standardizeDT")
   dt <- data.table::data.table(x = 1:10, y = letters[1:2])
   modelStan::standardizeDT(dt)
   expect_equal(names(dt)[3], expected = "x_std")
@@ -27,3 +27,6 @@ library(modelStan)
   expect_equal(names(dt)[3], expected = "x_std")
   expect_equal(dt[1, x_std], -1.4863011)
 
+  # Test of simPot
+  context("Test of simPotData")
+  expect_equal(dim(simPotData()), c(100, 5))
