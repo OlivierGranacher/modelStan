@@ -21,7 +21,8 @@ standardizeDT <- function(dt, cols = 'all.numeric', log = F) {
   if (log) new_cols <- paste0(cols, "_log_std")
   dt <- data.table::data.table(dt)
 
-  dt <<- dt[, (new_cols) := lapply(.SD, standardize, log = log), .SDcols = cols]
+  dt <- dt[, (new_cols) := lapply(.SD, modelStan::standardize, log = log), .SDcols = cols]
+  return(dt)
 }
 
 
