@@ -1,0 +1,44 @@
+---
+title: modelStan Simulation
+
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+---
+
+```{r setup , warning=FALSE, message=FALSE, include=FALSE, echo=T, tidy='styler'}
+knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F, fig.asp = 0.4, fig.path = 'Figs/')
+  library(rethinking)
+  library(rstan)
+  library(data.table)
+  library(modelStan)
+  
+  #devtools::install_github("rmcelreath/rethinking", ref = "Experimental")
+  options(mc.cores = parallel::detectCores())
+  rstan_options(auto_write = TRUE)
+  pal_disc_qual <- 'harmonic' # discrete palette from colorspace qualitative
+  scaleCustom <- colorspace::scale_fill_discrete_qualitative(palette = pal_disc_qual,
+                                                             aesthetics = c('color', 'fill'),
+                                                             name = "")
+  theme_set(theme_minimal())
+```
+
+
+```{r data load}
+  simDT <- modelStan::simPotData()
+  # id for group for each pot
+  #id_grp <- str(simDT[, .(id_grp = as.integer(G[1])), by = .(id_pot = as.integer(C))][, id_grp])
+  
+  d <- tidybayes::compose_data(simDT[, j =  !c("dat")],
+                          GC = tidybayes::x_at_y(G, C),
+                          BC = tidybayes::x_at_y(B, C),
+                          .n_name = tidybayes::n_prefix("N")
+  )
+  d$S <- 1  # red sd for pot effect 
+```
+
+
