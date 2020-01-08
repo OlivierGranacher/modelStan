@@ -16,10 +16,12 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
   library(rstan)
   library(data.table)
   library(modelStan)
+  library(ggplot2)
+  library(magrittr)
   
   #devtools::install_github("rmcelreath/rethinking", ref = "Experimental")
   options(mc.cores = parallel::detectCores())
-  rstan_options(auto_write = TRUE)
+  rstan::rstan_options(auto_write = TRUE)
   pal_disc_qual <- 'harmonic' # discrete palette from colorspace qualitative
   scaleCustom <- colorspace::scale_fill_discrete_qualitative(palette = pal_disc_qual,
                                                              aesthetics = c('color', 'fill'),
@@ -42,3 +44,30 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
 ```
 
 
+Modele Stan base centered
+
+```{r mod.0}
+  mod.0 <- rstan::stan(file = "simPotData_0.stan",
+                       data = d,
+                       chains = 4,
+                       iter = 2000)
+ precis(mod.0, 2)
+ modelStan::plotStanParam(mod.0, "alpha_top")
+ 
+ modelStan::addStanPred(mod.0, data = simDT, "Y_sim") %>% 
+   ggplot(aes(x = C))+ 
+   geom_point(aes(y = Y)) +
+   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="red", shape = 21, fill = NA) +
+   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3)
+```
+
+Modele Stan base non-centered
+
+```{r mod.0}
+  mod.0nc <- rstan::stan(file = "simPotData_0nc.stan",
+                       data = d,
+                       chains = 4,
+                       iter = 2000)
+ precis(mod.0nc, 2)
+ modelStan::plotStanParam(mod.0nc, "alpha_top")
+```
