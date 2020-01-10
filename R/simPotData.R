@@ -5,18 +5,21 @@
 #' @param N number of days in simulation
 #' @param np vector of number of pots per group
 #' @param Y vector with mean effect for each group
-#' @param sigma vector with sd for effect for each group
+#' @param sigma vector of sd for effect for pots
+#' @param sigma_g vector of sd of pot means within groups
 #'
 #'
 #' @return dt with columns dat, C as pot , G as group, B as block type and Y effect
 #'
 #' @export
 
-simPotData <- function(N = 10, np = c(2, 3, 5), Y = c(-1, 0, 1), sigma = c(1, 1, 1)) {
+simPotData <- function(N = 10,
+                       np = c(2, 3, 5),
+                       Y = c(-1, 0, 1),
+                       sigma = c(1, 1, 1),
+                       sigma_g = c(.1, .1, .1)) {
   # Nombre de groupes
   K <- length(np)
-  # Facteur multiplicatif sigma effet par cuve
-  k_sigma <- .5
   # Liste des dates
   dat_seq <- seq.POSIXt(Sys.time() - (N - 1) * 3600 * 24, Sys.time(), by = "day" )
   # Liste des groupes
@@ -30,9 +33,9 @@ simPotData <- function(N = 10, np = c(2, 3, 5), Y = c(-1, 0, 1), sigma = c(1, 1,
   pot_group    <- groups[id_pot_group]
   # Moyenne effet et sd effet pour chaquee cuve
   pot_mean_effect <- Y[id_pot_group]
-  pot_sd_effect   <- sigma[id_pot_group]
+  pot_sd_effect   <- sigma_g[id_pot_group]
   # Ajout de la variation par cuve dans chaque groupe
-  pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = k_sigma * pot_sd_effect)
+  pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = pot_sd_effect)
   # Affectation des blocs par cuve 0 ou 1:
   pot_bloc <- sample(0:1, sum(np), replace = T)
   # function de simulation de l'effet Y

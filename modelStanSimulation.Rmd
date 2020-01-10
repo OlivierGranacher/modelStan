@@ -31,7 +31,7 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
 
 
 ```{r data load}
-  simDT <- modelStan::simPotData()
+  simDT <- modelStan::simPotData(N = 100)
   # id for group for each pot
   #id_grp <- str(simDT[, .(id_grp = as.integer(G[1])), by = .(id_pot = as.integer(C))][, id_grp])
   
@@ -57,7 +57,7 @@ Modele Stan base centered
  modelStan::addStanPred(mod.0, data = simDT, "Y_sim") %>% 
    ggplot(aes(x = C))+ 
    geom_point(aes(y = Y)) +
-   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="red", shape = 21, fill = NA) +
+   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="indianred", shape = 21, fill = NA) +
    stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3)
 ```
 

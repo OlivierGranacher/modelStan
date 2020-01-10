@@ -4,7 +4,13 @@
 \alias{simPotData}
 \title{Simulate pot data for test}
 \usage{
-simPotData(N = 10, np = c(2, 3, 5), Y = c(-1, 0, 1), sigma = c(1, 1, 1))
+simPotData(
+  N = 10,
+  np = c(2, 3, 5),
+  Y = c(-1, 0, 1),
+  sigma = c(1, 1, 1),
+  sigma_g = c(0.1, 0.1, 0.1)
+)
 }
 \arguments{
 \item{N}{number of days in simulation}
@@ -13,7 +19,9 @@ simPotData(N = 10, np = c(2, 3, 5), Y = c(-1, 0, 1), sigma = c(1, 1, 1))
 
 \item{Y}{vector with mean effect for each group}
 
-\item{sigma}{vector with sd for effect for each group}
+\item{sigma}{vector of sd for effect for pots}
+
+\item{sigma_g}{vector of sd of pot means within groups}
 }
 \value{
 dt with columns dat, C as pot , G as group, B as block type and Y effect
