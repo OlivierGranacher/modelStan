@@ -5,10 +5,10 @@
 \title{Simulate pot data for test}
 \usage{
 simPotData(
-  N = 10,
-  np = c(2, 3, 5),
-  Y = c(-1, 0, 1),
-  sigma = c(1, 1, 1),
+  N = 3,
+  np = c(5, 5, 5),
+  Y = c(0, 1, 3),
+  sigma = c(0.3, 0.3, 0.3),
   sigma_g = c(0.1, 0.1, 0.1)
 )
 }
