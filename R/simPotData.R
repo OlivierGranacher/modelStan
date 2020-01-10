@@ -13,10 +13,10 @@
 #'
 #' @export
 
-simPotData <- function(N = 10,
-                       np = c(2, 3, 5),
-                       Y = c(-1, 0, 1),
-                       sigma = c(1, 1, 1),
+simPotData <- function(N = 3,
+                       np = c(5, 5, 5),
+                       Y = c(0, 1, 3),
+                       sigma = c(.3, .3, .3),
                        sigma_g = c(.1, .1, .1)) {
   # Nombre de groupes
   K <- length(np)
@@ -33,9 +33,10 @@ simPotData <- function(N = 10,
   pot_group    <- groups[id_pot_group]
   # Moyenne effet et sd effet pour chaquee cuve
   pot_mean_effect <- Y[id_pot_group]
-  pot_sd_effect   <- sigma_g[id_pot_group]
+  pot_g_sd_effect <- sigma_g[id_pot_group]
+  pot_sd_effect   <- sigma[id_pot_group]
   # Ajout de la variation par cuve dans chaque groupe
-  pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = pot_sd_effect)
+  pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = pot_g_sd_effect)
   # Affectation des blocs par cuve 0 ou 1:
   pot_bloc <- sample(0:1, sum(np), replace = T)
   # function de simulation de l'effet Y

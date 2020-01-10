@@ -9,7 +9,8 @@ int N_G;     // number of groups
 int G[N];    // group index in data
 int GC[N_C]; // group index for each pot
 int BC[N_C]; // block index for each pot
-real S;      // ref sd for effect prior
+real<lower=0> S;      // ref sd for effect prior
+real E;      // ref effect for prior
 }
 
 parameters{
@@ -17,7 +18,6 @@ parameters{
   real<lower=0> sigma_top;      // sd for mean effects
   real          alpha[N_C];     // effect for each pot
   real<lower=0> sigma;          // sd for pot effect
-  real          beta_block[N_G];     // effect for block B
 }
 
 model {
@@ -26,20 +26,19 @@ model {
     alpha[c] ~ normal(alpha_top[GC[c]], sigma_top);
   }
   sigma ~ exponential(1/S);
-  beta_block ~ normal(0, S);
  // Hyper priors
- alpha_top ~ normal(0, S);
+ alpha_top ~ normal(E, S);
  sigma_top ~ exponential(1/S);
 
  for (i in 1:N) {
-   Y[i] ~ normal(alpha[C[i]] + beta_block[G[i]], sigma);
+   Y[i] ~ normal(alpha[C[i]] , sigma);
  }
 
 }
 generated quantities {
   vector[N] Y_sim;
   for (i in 1:N) {
-    Y_sim[i] = normal_rng(alpha[C[i]] + beta_block[G[i]], sigma);
+    Y_sim[i] = normal_rng(alpha[C[i]] , sigma);
   }
 }
 
