@@ -31,6 +31,7 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
 
 
 ```{r data load}
+  set.seed(3)
   simDT <- modelStan::simPotData(N = 3, np = c(20, 20, 20), Y = c(0, 1, 3), sigma = c(.5, .5, .5), sigma_g = c(.1, .1, .1))
   # id for group for each pot
   #id_grp <- str(simDT[, .(id_grp = as.integer(G[1])), by = .(id_pot = as.integer(C))][, id_grp])
@@ -40,8 +41,8 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
                           BC = tidybayes::x_at_y(B, C),
                           .n_name = tidybayes::n_prefix("N")
   )
-  d$S <- 2 #  sd for mean effect 
-  d$E <- 1  # mean expected effect
+  d$S <- 3 #  sd for mean effect 
+  d$E <- 0  # mean expected effect
 ```
 
 
@@ -71,4 +72,10 @@ Modele Stan base non-centered
                        iter = 2000)
  precis(mod.0nc, 2)
  modelStan::plotStanParam(mod.0nc, "alpha_top")
+ 
+  modelStan::addStanPred(mod.0nc, data = simDT, "Y_sim") %>% 
+   ggplot(aes(x = C))+ 
+   geom_point(aes(y = Y)) +
+   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="indianred", shape = 21, fill = NA) +
+   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3)
 ```
