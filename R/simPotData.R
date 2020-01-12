@@ -39,19 +39,27 @@ simPotData <- function(N = 3,
   pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = pot_g_sd_effect)
   # Affectation des blocs par cuve 0 ou 1:
   pot_bloc <- sample(0:1, sum(np), replace = T)
+  # function to calculate time effect
+  calculateTimeEffect <- function(id_d, time_effect_mean = 10, timeEffectSD = 1){
+    effect <- rnorm(n = length(id_d), time_effect_mean, timeEffectSD )
+    return(effect)
+  }
   # function de simulation de l'effet Y
-  calculateY <- function(k){ # k vecteur indice de la cuve as.numeric(C)
-    return(pot_mean_effect[k] + rnorm(n = length(k) , mean = 0, sd = 1) * pot_sd_effect[k])
+  calculateY <- function(k, id_d, ...){ # k vecteur indice de la cuve as.numeric(C)
+    return(pot_mean_effect[k] + rnorm(n = length(k) , mean = 0, sd = 1) * pot_sd_effect[k] + calculateTimeEffect(id_d, ...))
   }
 
   DT <- data.table::as.data.table(expand.grid(dat_seq, pots))
   data.table::setnames(DT, old = c("Var1", "Var2"), new = c("dat", "C"))
   # Ajout du groupe pour chaque cuve
   DT[, G := pot_group[as.integer(C)]]
+  # Ajout de l'indice de dat
+  DT[, id_dat := as.integer(factor(dat))]
   # Ajout de l'effet par cuve
-  DT[, Y := calculateY(C)]
+  DT[, Y := calculateY(C, id_dat)]
   # Ajout du bloc
   DT[, B := pot_bloc[as.integer(C)]]
+
   return(DT)
 }
 

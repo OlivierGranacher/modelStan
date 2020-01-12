@@ -26,13 +26,13 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
   scaleCustom <- colorspace::scale_fill_discrete_qualitative(palette = pal_disc_qual,
                                                              aesthetics = c('color', 'fill'),
                                                              name = "")
-  theme_set(theme_minimal())
+  theme_set(ggthemes::theme_tufte())
 ```
 
 
 ```{r data load}
   set.seed(3)
-  simDT <- modelStan::simPotData(N = 3, np = c(20, 20, 20), Y = c(0, 1, 3), sigma = c(.5, .5, .5), sigma_g = c(.1, .1, .1))
+  simDT <- modelStan::simPotData(N = 100, np = c(5, 5, 2), Y = c(0, 1, 3), sigma = c(.5, .5, .5), sigma_g = c(.1, .1, .1))
   # id for group for each pot
   #id_grp <- str(simDT[, .(id_grp = as.integer(G[1])), by = .(id_pot = as.integer(C))][, id_grp])
   
@@ -41,41 +41,93 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
                           BC = tidybayes::x_at_y(B, C),
                           .n_name = tidybayes::n_prefix("N")
   )
-  d$S <- 3 #  sd for mean effect 
+  d$N_dat <- length(unique(simDT[, id_dat]))
+  d$S <- 8 #  sd for mean effect 
   d$E <- 0  # mean expected effect
 ```
 
 
-Modele Stan base centered
+Modele Stan base non-centered without time effect
 
-```{r mod.0}
-  mod.0 <- rstan::stan(file = "simPotData_0.stan",
-                       data = d,
-                       chains = 4,
-                       iter = 2000)
- precis(mod.0, 2)
- modelStan::plotStanParam(mod.0, "alpha_top")
- 
- modelStan::addStanPred(mod.0, data = simDT, "Y_sim") %>% 
-   ggplot(aes(x = C))+ 
-   geom_point(aes(y = Y)) +
-   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="indianred", shape = 21, fill = NA) +
-   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3)
-```
-
-Modele Stan base non-centered
-
-```{r mod.0}
+```{r mod.0nc}
   mod.0nc <- rstan::stan(file = "simPotData_0nc.stan",
                        data = d,
                        chains = 4,
                        iter = 2000)
  precis(mod.0nc, 2)
- modelStan::plotStanParam(mod.0nc, "alpha_top")
+ modelStan::plotStanParam(mod.0nc, "alpha_top") +
+   ggtitle("non-centered WITHOUT time effect")
  
   modelStan::addStanPred(mod.0nc, data = simDT, "Y_sim") %>% 
+   {ggplot(., aes(x = C))+ 
+   geom_point(aes(y = Y), color = "grey50") +
+   geom_linerange(aes(y = pred, ymin = q10, ymax = q90),
+                   color ="indianred",
+                   shape = 21,
+                   fill = NA,
+                   fatten= .4) +
+   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3) +
+    ggtitle("non-centered WITHOUT time effect") + ggthemes::geom_rangeframe(aes(y = Y))}
+```
+
+
+Modele Stan base non-centered with time effect
+
+```{r mod.0nc_time}
+  mod.0nc_time <- rstan::stan(file = "simPotData_0nc_time.stan",
+                       data = d,
+                       chains = 4,
+                       iter = 2000)
+ precis(mod.0nc_time, 2)
+ modelStan::plotStanParam(mod.0nc_time, c("alpha_top")) +
+    ggtitle("non-centered with time effect")
+ 
+  modelStan::addStanPred(mod.0nc_time, data = simDT, "Y_sim") %>% 
    ggplot(aes(x = C))+ 
    geom_point(aes(y = Y)) +
    geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="indianred", shape = 21, fill = NA) +
-   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3)
+   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3) +
+    ggtitle("non-centered with time effect")
+  
+  # Graphique de l'evolution temporelle de Y
+ simDT %>% 
+    dplyr::group_by(id_dat) %>% 
+    dplyr::summarise(Y_mean = mean(Y),
+                     Y_q10  = quantile(Y, .1),
+                     Y_q90  = quantile(Y, .9)
+                     ) %>% 
+    modelStan::addStanPred(mod.0nc_time, data = ., "Y_dat") %>% 
+    {ggplot(., (aes(x = id_dat))) +
+    geom_pointrange(aes(y = Y_mean, ymin = Y_q10, ymax = Y_q90), color = "grey80", fatten  = .3) +
+    geom_point(aes(y = pred), color = "indianred4", size = 2, shape = 21) +
+    ggtitle("Valeur Moyenne Y dans le temps") +
+    scale_x_continuous(minor_breaks = NULL, breaks = NULL, name = NULL) +
+    scale_y_continuous(breaks = c(min(.$Y_mean), mean(.$Y_mean), max(.$Y_mean)),
+                       name = NULL,
+                       labels = scales::comma_format(.01)) +
+        ggthemes::geom_rangeframe(inherit.aes = F, aes(y = Y_mean))
+      }
+   
+    
 ```
+
+Getting parameter values with tidybayes package
+
+```{r tidybayes results}
+# table of results  
+mod.0nc %>% 
+  tidybayes::recover_types(simDT) %>% 
+  tidybayes::spread_draws(alpha_top[G]) %>% 
+  tidybayes::mean_qi()
+  
+# Putting names back in data  
+mod.0nc %<>% 
+  tidybayes::recover_types(simDT)
+
+# plot of results for alpha top
+ mod.0nc %>% 
+   tidybayes::spread_draws(alpha_top[G]) %>% 
+   ggplot(aes(x = alpha_top, y = G)) +
+   tidybayes::stat_pointintervalh()
+```
+
