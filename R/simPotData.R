@@ -7,7 +7,10 @@
 #' @param Y vector with mean effect for each group
 #' @param sigma vector of sd for effect for pots
 #' @param sigma_g vector of sd of pot means within groups
-#'
+#' @param time_effect logical T to include time effect
+#' @param p  order of auto regressive model - see armaTimeSeries
+#' @param q  order of auto moving average model - see armaTimeSeries
+#' @param e  sd of error in arma model - see armaTimeSeries
 #'
 #' @return dt with columns dat, C as pot , G as group, B as block type and Y effect
 #'
@@ -17,7 +20,11 @@ simPotData <- function(N = 3,
                        np = c(5, 5, 5),
                        Y = c(0, 1, 3),
                        sigma = c(.3, .3, .3),
-                       sigma_g = c(.1, .1, .1)) {
+                       sigma_g = c(.1, .1, .1),
+                       time_effect = T,
+                       p = 2,
+                       q = 2,
+                       e = .1) {
   # Nombre de groupes
   K <- length(np)
   # Liste des dates
@@ -39,14 +46,10 @@ simPotData <- function(N = 3,
   pot_mean_effect <- pot_mean_effect + rnorm(n = sum(np), mean = 0, sd = pot_g_sd_effect)
   # Affectation des blocs par cuve 0 ou 1:
   pot_bloc <- sample(0:1, sum(np), replace = T)
-  # function to calculate time effect
-  calculateTimeEffect <- function(id_d, time_effect_mean = 10, timeEffectSD = 1){
-    effect <- rnorm(n = length(id_d), time_effect_mean, timeEffectSD )
-    return(effect)
-  }
+
   # function de simulation de l'effet Y
-  calculateY <- function(k, id_d, ...){ # k vecteur indice de la cuve as.numeric(C)
-    return(pot_mean_effect[k] + rnorm(n = length(k) , mean = 0, sd = 1) * pot_sd_effect[k] + calculateTimeEffect(id_d, ...))
+  calculateY <- function(k){ # k vecteur indice de la cuve as.numeric(C)
+    return(pot_mean_effect[k] + rnorm(n = length(k) , mean = 0, sd = 1) * pot_sd_effect[k] )
   }
 
   DT <- data.table::as.data.table(expand.grid(dat_seq, pots))
@@ -56,10 +59,10 @@ simPotData <- function(N = 3,
   # Ajout de l'indice de dat
   DT[, id_dat := as.integer(factor(dat))]
   # Ajout de l'effet par cuve
-  DT[, Y := calculateY(C, id_dat)]
+  DT[, Y := calculateY(C) + armaTimeSeries(N, p, q, e)]
   # Ajout du bloc
   DT[, B := pot_bloc[as.integer(C)]]
 
-  return(DT)
+  return(DT[])
 }
 

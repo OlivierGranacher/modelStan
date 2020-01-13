@@ -22,7 +22,7 @@ standardizeDT <- function(dt, cols = 'all.numeric', log = F) {
   dt <- data.table::data.table(dt)
 
   dt <- dt[, (new_cols) := lapply(.SD, modelStan::standardize, log = log), .SDcols = cols]
-  return(dt)
+  return(dt[])
 }
 
 

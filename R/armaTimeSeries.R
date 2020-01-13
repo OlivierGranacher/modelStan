@@ -11,10 +11,16 @@
 #'
 #' @return vector of N numeric
 #'
+#' @examples
+#' armaTimeSeries (N = 100, p = 5, q = 20, e = 1)
+#'
 #' @export
 
 armaTimeSeries <- function(N, p, q, e = .1) {
-
+  if (N <= max(p, q)) {
+    warning("N must be larger than p and q - returning 0s")
+    return(rep(0, N))
+  }
   # ar function
   ar <- function(N , p = 1, e = .1 ) {
     err <- rnorm(N, 0, e)
@@ -43,17 +49,6 @@ armaTimeSeries <- function(N, p, q, e = .1) {
 
 
 
-#plot(armaTimeSeries (N=100, p= 5, q = 20, e =.1), type = "l")
 
 
-## Number of shifts:
-ns <- rpois(1, 10)
-## The length of shifts
-ls <- rpois(ns, 10)
-## The positions of the shifts
-ps <- cumsum(ls)
-## The magnitudes of the shifts
-ms <- rchisq(ns, 10)
-##Shift vector
-S <- rep(0, length(Y))
-S[ps] <- ms
+

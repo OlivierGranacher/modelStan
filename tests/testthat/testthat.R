@@ -1,5 +1,6 @@
 library(testthat)
 library(modelStan)
+library(data.table)
 
 
 # Test of function standardise
@@ -29,4 +30,9 @@ library(modelStan)
 
   # Test of simPot
   context("Test of simPotData")
-  expect_equal(dim(simPotData()), c(100, 5))
+  expect_equal(dim(simPotData(N = 3,
+                              np = c(5, 5, 5))), c(45, 6))
+
+  # Test of armaTimesSeries
+  context("Test of armaTimeSeries")
+  expect_equal(length(armaTimeSeries(N = 10, p = 2, q = 2)), 10)
