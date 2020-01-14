@@ -9,7 +9,11 @@ simPotData(
   np = c(5, 5, 5),
   Y = c(0, 1, 3),
   sigma = c(0.3, 0.3, 0.3),
-  sigma_g = c(0.1, 0.1, 0.1)
+  sigma_g = c(0.1, 0.1, 0.1),
+  time_effect = T,
+  p = 2,
+  q = 2,
+  e = 0.1
 )
 }
 \arguments{
@@ -22,6 +26,14 @@ simPotData(
 \item{sigma}{vector of sd for effect for pots}
 
 \item{sigma_g}{vector of sd of pot means within groups}
+
+\item{time_effect}{logical T to include time effect}
+
+\item{p}{order of auto regressive model - see armaTimeSeries}
+
+\item{q}{order of auto moving average model - see armaTimeSeries}
+
+\item{e}{sd of error in arma model - see armaTimeSeries}
 }
 \value{
 dt with columns dat, C as pot , G as group, B as block type and Y effect

@@ -33,15 +33,15 @@ knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F,
 
 ```{r data load}
   set.seed(4)
-  simDT <- modelStan::simPotData(N = 20,
-                                 np = c(3, 15),
+  simDT <- modelStan::simPotData(N = 10,
+                                 np = c(3, 5),
                                  Y = c(1, 0),
-                                 sigma = c(.5, .5),
-                                 sigma_g = c(.1, .1),
+                                 sigma = c(2, 2),
+                                 sigma_g = c(.2, .2),
                                  time_effect = T,
                                  p = 5,
                                  q = 5,
-                                 e = 2
+                                 e = 5
                                  )
   # plot of Y mean evolution with time
   simDT[, .(Y_mean = mean(Y)), by = id_dat] %>% 
@@ -139,6 +139,49 @@ Modele Stan base non-centered with time effect
     
 ```
 
+
+Modele Stan base non-centered with hierarchical time effect 
+
+```{r mod.0nc_Htime}
+  mod.0nc_Htime <- rstan::stan(file = "simPotData_0nc_Htime.stan",
+                       data = d,
+                       chains = 4,
+                       iter = 2000)
+ precis(mod.0nc_Htime, 2)
+ modelStan::plotStanParam(mod.0nc_time, c("alpha_diff")) +
+    ggtitle("non-centered with H time effect")
+ 
+  modelStan::addStanPred(mod.0nc_Htime, data = simDT, "Y_sim") %>% 
+   ggplot(aes(x = C)) + 
+   geom_point(aes(y = Y)) +
+   geom_pointrange(aes(y = pred, ymin = q10, ymax = q90), color ="indianred", shape = 21, fill = NA) +
+   stat_summary(aes(y = Y),fun.y = mean, geom = "point", color = "black", size = 3) +
+    ggtitle("non-centered with H time effect")
+  
+  # Graphique de l'evolution temporelle de Y
+ simDT %>% 
+    dplyr::group_by(id_dat) %>% 
+    dplyr::summarise(Y_mean = mean(Y),
+                     Y_q10  = quantile(Y, .1),
+                     Y_q90  = quantile(Y, .9)
+                     ) %>% 
+    modelStan::addStanPred(mod.0nc_Htime, data = ., "Y_dat") %>% 
+    {ggplot(., (aes(x = id_dat))) +
+    geom_pointrange(aes(y = Y_mean, ymin = Y_q10, ymax = Y_q90), color = "grey80", fatten  = .3) +
+    geom_point(aes(y = pred), color = "indianred4", size = 2, shape = 21) +
+    ggtitle("Valeur Moyenne Y dans le temps") +
+    scale_x_continuous(minor_breaks = NULL, breaks = NULL, name = NULL) +
+    scale_y_continuous(breaks = c(min(.$Y_mean), mean(.$Y_mean), max(.$Y_mean)),
+                       name = NULL,
+                       labels = scales::comma_format(.01)) +
+        ggthemes::geom_rangeframe(inherit.aes = F, aes(y = Y_mean))
+      }
+   
+    
+```
+
+
+
 Getting parameter values with tidybayes package
 
 ```{r tidybayes results}
@@ -150,8 +193,12 @@ dplyr::bind_rows(mod.0nc %>%
   mod.0nc_time %>% 
   tidybayes::recover_types(simDT) %>% 
   tidybayes::spread_draws(alpha_diff[G]) %>% 
+  tidybayes::mean_qi(),
+  mod.0nc_Htime %>% 
+  tidybayes::recover_types(simDT) %>% 
+  tidybayes::spread_draws(alpha_diff[G]) %>% 
   tidybayes::mean_qi()
-) %>% dplyr::bind_cols(model = c("mod.0nc", "mod.0nc_time")) %>% 
+) %>% dplyr::bind_cols(model = c("mod.0nc", "mod.0nc_time", "mod.0nc_Htime")) %>% 
   ggplot(aes( x = model)) + geom_pointrange(aes(y = alpha_diff, ymin = .lower, ymax= .upper)) +
   coord_flip()
 # Putting names back in data  
