@@ -25,8 +25,12 @@ parameters{
 
 transformed parameters{
    real alpha[N_C];     // effect for each pot
+   real alpha_diff[N_G - 1];   // relative effect for each group
    for (c in 1:N_C) {
      alpha[c] = alpha_top[GC[c]] + sigma_top * alpha_zoffset[c];
+   }
+   for (g in 1:N_G-1){
+   alpha_diff[g] = alpha_top[g + 1] - alpha_top[g];
    }
 }
 

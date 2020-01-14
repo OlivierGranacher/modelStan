@@ -1,10 +1,10 @@
 // simPotData test model fixed effects non centered
 
 data{
-int N;       // number of observations in data
+int<lower=2> N;       // number of time observations in data
 vector[N] Y; // effect, response, dependent variable
-int N_C;     // number of distinct pots in data
-int N_G;     // number of groups
+int<lower=2> N_C;     // number of distinct pots in data
+int<lower=2> N_G;     // number of groups
 int<upper=N_C> C[N];    // pot index in data
 int<upper=N_G> G[N];    // group index in data
 int<lower=1, upper=N_G> GC[N_C]; // list od group index for each pot
@@ -21,9 +21,13 @@ parameters{
 }
 
 transformed parameters{
-   real alpha[N_C];     // effect for each pot
+   real alpha[N_C];          // effect for each pot
+   real alpha_diff[N_G - 1];   // relative effect for each group
    for (c in 1:N_C) {
      alpha[c] = alpha_top[GC[c]] + sigma_top * alpha_zoffset[c];
+   }
+   for (g in 1:N_G-1){
+   alpha_diff[g] = alpha_top[g+1] - alpha_top[g];
    }
 }
 
