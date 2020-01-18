@@ -1,0 +1,100 @@
+---
+title: Case Study of Bayes Factor for two Bernoulli tests
+
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+---
+
+```{r setup , warning=FALSE, message=FALSE, include=FALSE, echo=T, tidy='styler'}
+knitr::opts_chunk$set(echo = T, include = T, eval = T, message = F, warning = F, fig.asp = 0.4, fig.path = 'Figs/')
+  library(rethinking)
+  library(rstan)
+  library(data.table)
+  library(modelStan)
+  library(ggplot2)
+  library(magrittr)
+  
+  #devtools::install_github("rmcelreath/rethinking", ref = "Experimental")
+  options(mc.cores = parallel::detectCores())
+  rstan::rstan_options(auto_write = TRUE)
+  pal_disc_qual <- 'harmonic' # discrete palette from colorspace qualitative
+  scaleCustom <- colorspace::scale_fill_discrete_qualitative(palette = pal_disc_qual,
+                                                             aesthetics = c('color', 'fill'),
+                                                             name = "")
+  theme_set(ggthemes::theme_tufte())
+  theme_set(theme_minimal())
+```
+
+Objective : find out the bayes factor for 2 sets of Bernouilli tests. First model gives a probability to each period, the second model gives an overall probability to both periods.
+The Bayes Factor takes into consideration the complexity of the model, that is will give a penalty for a model with more parameters
+
+```{r simulated data}
+  set.seed(4)
+  dt <- data.table(period = 1:2,
+                   trials = c(50, 50),
+                   successes = c(25, 25))
+  
+  data_list <- list(
+    trials = dt$trials,
+    successes = dt$successes,
+    N = nrow(dt)
+  )
+```
+
+ 2 periods model
+```{r 2 period model run }
+ data_list$period <- 1:2
+ m_2per <- rstan::stan(file = "caseStudyBernouilli_lpdf.stan", 
+                       data = data_list,
+                       chains = 4,
+                       iter = 400)
+ rethinking::precis(m_2per, 2)
+ rstan::extract(m_2per, "prob") %>% as.data.table() %>% 
+   setnames(c("prob1", "prob2")) %>% 
+   melt() %>% 
+   ggplot(aes(x = value, fill = variable)) +
+   geom_density(alpha = .5) + scaleCustom +
+   labs(title = "Comparison of prob density for the 2 periods", x = "", y = "") +
+   scale_y_continuous(breaks = NULL)
+ 
+```
+
+1 period model
+```{r 1 period model run }
+ data_list$period <- c(1, 1)
+ m_1per <- rstan::stan(file = "caseStudyBernouilli_lpdf.stan", 
+                       data = data_list,
+                       chains = 4,
+                       iter = 400)
+ rethinking::precis(m_1per, 2)
+ rstan::extract(m_1per, "prob") %>% as.data.table() %>% 
+   melt() %>% 
+   ggplot(aes(x = value, fill = variable)) +
+   geom_density(alpha = .5) + scaleCustom +
+   labs(title = "Prob density for 1 period", x = "", y = "") +
+   scale_y_continuous(breaks = NULL)
+ 
+ 
+```
+
+
+
+Comparaison des 2 modeles 
+
+```{r comparaison modeles}
+  rethinking::compare(m_2per, m_1per)
+
+  H1 <- bridgesampling::bridge_sampler(m_2per)
+  H0 <- bridgesampling::bridge_sampler(m_1per)
+  bridgesampling::bf(H1, H0)
+  
+  #bridgesampling::error_measures(H1)
+  #bridgesampling::error_measures(H0)
+
+```
+
