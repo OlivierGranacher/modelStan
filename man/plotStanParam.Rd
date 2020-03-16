@@ -4,12 +4,14 @@
 \alias{plotStanParam}
 \title{Returns ggplot with pointrange for parameters}
 \usage{
-plotStanParam(model, param.name)
+plotStanParam(model, param.name, names = NULL)
 }
 \arguments{
 \item{model}{a Stan fit obtained with rstan::stan()}
 
 \item{param.name}{name (char) of parameter to get}
+
+\item{names}{vector of names of groups in plot -}
 }
 \value{
 ggplot with point range for each parameter

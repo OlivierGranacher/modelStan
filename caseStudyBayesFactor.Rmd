@@ -36,8 +36,8 @@ The Bayes Factor takes into consideration the complexity of the model, that is w
 ```{r simulated data}
   set.seed(4)
   dt <- data.table(period = 1:2,
-                   trials = c(50, 50),
-                   successes = c(25, 25))
+                   trials = c(1000, 60),
+                   successes = c(500, 45))
   
   data_list <- list(
     trials = dt$trials,
@@ -52,15 +52,17 @@ The Bayes Factor takes into consideration the complexity of the model, that is w
  m_2per <- rstan::stan(file = "caseStudyBernouilli_lpdf.stan", 
                        data = data_list,
                        chains = 4,
-                       iter = 400)
+                       iter = 1000)
  rethinking::precis(m_2per, 2)
  rstan::extract(m_2per, "prob") %>% as.data.table() %>% 
-   setnames(c("prob1", "prob2")) %>% 
+   setnames(c("period 1", "period2")) %>% 
    melt() %>% 
    ggplot(aes(x = value, fill = variable)) +
    geom_density(alpha = .5) + scaleCustom +
    labs(title = "Comparison of prob density for the 2 periods", x = "", y = "") +
-   scale_y_continuous(breaks = NULL)
+   scale_y_continuous(breaks = NULL) +
+   theme(legend.position = 'none') +
+   annotate("text", x = c(.5, .7), y = c(1.5, 1.5), label = c("period 1", "period 2"))
  
 ```
 
@@ -70,7 +72,7 @@ The Bayes Factor takes into consideration the complexity of the model, that is w
  m_1per <- rstan::stan(file = "caseStudyBernouilli_lpdf.stan", 
                        data = data_list,
                        chains = 4,
-                       iter = 400)
+                       iter = 1000)
  rethinking::precis(m_1per, 2)
  rstan::extract(m_1per, "prob") %>% as.data.table() %>% 
    melt() %>% 

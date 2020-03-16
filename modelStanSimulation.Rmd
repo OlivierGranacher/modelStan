@@ -200,7 +200,8 @@ dplyr::bind_rows(mod.0nc %>%
   tidybayes::mean_qi()
 ) %>% dplyr::bind_cols(model = c("mod.0nc", "mod.0nc_time", "mod.0nc_Htime")) %>% 
   ggplot(aes( x = model)) + geom_pointrange(aes(y = alpha_diff, ymin = .lower, ymax= .upper)) +
-  coord_flip()
+  coord_flip() +
+  geom_hline(yintercept = 0, linetype = 2)
 # Putting names back in data  
 # mod.0nc %<>% 
 #   tidybayes::recover_types(simDT)
